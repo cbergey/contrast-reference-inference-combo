@@ -1,0 +1,45 @@
+---
+title: "combo-analysis-mturk"
+output: html_document
+---
+
+```{r load_libraries}
+library(tidyverse)
+library(here)
+library(ggthemes)
+library(tidyboot)
+
+theme_set(theme_classic(base_size = 18))
+```
+
+```{r read_data}
+data <- read_csv(here("data/turk_data.csv")) %>%
+  mutate(counter = as.numeric(counter), percentage = as.numeric(percentage))
+```
+
+```{r keep_subjs}
+keep_subjs <- data %>%
+  filter(searchtype == "attncheck", counter == 6) %>%
+  group_by(subid) %>%
+  filter(attncheckscore > 4)
+```
+
+```{r mean}
+mean_data <- data %>%
+  filter(subid %in% keep_subjs$subid, counter < 6) %>%
+  filter(chosetarget == TRUE) %>%
+  group_by(searchtype, sizeasked, subid) %>%
+  summarise(percentage = mean(percentage)) %>%
+  tidyboot_mean(percentage) %>%
+  ungroup() %>%
+  mutate(sizeasked = factor(sizeasked, labels = c("noun", "adjective noun")))
+```
+
+```{r unique, fig.width = 10}
+ggplot(mean_data, aes(x = searchtype, color = sizeasked)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, y = empirical_stat),
+                  position = position_dodge(.5)) + 
+  scale_color_ptol() + 
+  ylab("Item chosen") + 
+  xlab("")
+```
