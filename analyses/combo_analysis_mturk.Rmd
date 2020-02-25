@@ -20,8 +20,9 @@ data <- read_csv(here("data/turk_data.csv")) %>%
 ```{r keep_subjs}
 keep_subjs <- data %>%
   filter(searchtype == "attncheck", counter == 6) %>%
+  mutate(attncheckscore = as.numeric(gsub("\n", "", attncheckscore))) %>%
   group_by(subid) %>%
-  filter(attncheckscore > 4)
+  filter(attncheckscore >= 4)
 ```
 
 ```{r mean}
@@ -29,6 +30,9 @@ mean_data <- data %>%
   filter(subid %in% keep_subjs$subid, counter < 6) %>%
   group_by(searchtype, sizeasked, subid) %>%
   summarise(percentage = mean(percentage)) %>%
+  group_by(chosetarget, searchtype, sizeasked, subid) %>%
+  summarise(percentage = mean(percentage), 
+            rtsearch = mean(log(rtsearch))) %>%
   tidyboot_mean(percentage) %>%
   ungroup() %>%
   mutate(sizeasked = factor(sizeasked, labels = c("noun", "adjective noun")))
@@ -47,6 +51,16 @@ ggplot(mean_data, aes(x = searchtype, color = sizeasked)) +
                   position = position_dodge(.5)) + 
   facet_wrap(chosetarget) +
   scale_color_ptol() + 
+  facet_wrap(~chosetarget) +
   ylab("Item chosen") + 
   xlab("")
+```
+
+```{r}
+data %>%
+  filter(searchtype == "contrast") %>%
+  ggplot(aes(x = log(rttest), y = percentage)) + 
+  facet_wrap(~ chosetarget) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
 ```
