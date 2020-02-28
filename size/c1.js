@@ -2,7 +2,7 @@
 // ---------------- PARAMETERS ------------------
 
 
-var numtrials = 5;
+var numtrials = 6;
 
 // ---------------- HELPER ------------------
 
@@ -55,9 +55,9 @@ var colors = ["red", "blue", "green", "purple"];
 
 var sizes = ["big","small"];
 
-var words = [["blicket","blickets"], ["wug","wugs"], ["toma", "tomas"], ["gade", "gades"], ["sprock", "sprocks"]];
+var words = [["blicket","blickets"], ["wug","wugs"], ["toma", "tomas"], ["gade", "gades"], ["sprock", "sprocks"], ["dax", "daxes"]];
 
-var trialtypes = [2,3,4,5,6];
+var trialtypes = [1,2,3,4,5,6];
 
 var checkwords = ["wug", "gade", "toma", "blicket"]
 
@@ -67,6 +67,21 @@ var foilwords = ["almo", "warb", "fugle", "larby"]
 
 
 //-----------------------------------------------
+for (i=0; i < shapes.length; i++) {
+	for (j=0; j < colors.length; j++) {
+		imgurl = "stim-images/object" + shapes[i] + colors[j] + "big.jpg";
+		image = preloadImage(imgurl);
+		imgurl = "stim-images/object" + shapes[i] + colors[j] + "small.jpg";
+		image = preloadImage(imgurl);
+	}
+}
+
+preloadImage("stim-images/alien1.png");
+preloadImage("stim-images/alien2.png");
+preloadImage("stim-images/speechbubble.jpg");
+preloadImage("stim-images/speechbubble2.jpg");
+
+
 
 showSlide("prestudy");
 
@@ -308,9 +323,11 @@ var experiment = {
 			experiment.lurepos = 0
 			experiment.choselure = false
 			experiment.chosendistractor = 0
-
+			experiment.chosetarget = false
+			experiment.targetpos = 0
 			experiment.clickDisabled = true;
   	 		$( "#totestbutton" ).attr('disabled', true);
+  	 		$("#trainingstage").hide();
 
 			var rightstims = ["target", "distractor1","distractor2"];
 			var leftstims = ["distractor3", "distractor4", "distractor5"];
@@ -353,13 +370,14 @@ var experiment = {
 					} else if (rightstims[i] == "distractor2") {
 						var object = "#sobject" + (3+i+1);
 						experiment.lurepos = 3+i+1;
+						experiment.distractor2pos = 3 + i + 1
 						experiment.objsizes[i] = experiment.targetsize
-						$(object).attr("src", "stim-images/object" + experiment.distractorshape1 + experiment.targetcolor + experiment.targetsize + ".jpg");
+						$(object).attr("src", "stim-images/object" + experiment.distractorshape2 + experiment.targetcolor + experiment.targetsize + ".jpg");
 					} 
 					if (leftstims[i] == "distractor3") {
 						var object = "#sobject" + (i+1);
-						experiment.distractor2pos = i + 1
-						$(object).attr("src", "stim-images/object" + experiment.distractorshape2 + experiment.targetcolor + experiment.targetsize + ".jpg");
+						
+						$(object).attr("src", "stim-images/object" + experiment.distractorshape1 + experiment.targetcolor + experiment.targetsize + ".jpg");
 					} else if (leftstims[i] == "distractor4") {
 						var object = "#sobject" + (i+1);
 						$(object).attr("src", "stim-images/object" + experiment.distractorshape1 + experiment.targetcolor + experiment.distractorsize + ".jpg");
@@ -394,7 +412,6 @@ var experiment = {
 						$(object).attr("src", "stim-images/object" + experiment.distractorshape1 + experiment.targetcolor + experiment.targetsize + ".jpg");
 					} else if (leftstims[i] == "distractor5") {
 						var object = "#sobject" + (i+1);
-						experiment.distractor2pos = i + 1
 						$(object).attr("src", "stim-images/object" + experiment.distractorshape2 + experiment.targetcolor + experiment.targetsize + ".jpg");
 					}
 				}
@@ -451,26 +468,26 @@ var experiment = {
 
 						experiment.rtsearch = Date.now() - experiment.starttime;
 
-							if (experiment.targetpos == 4) {
-								experiment.chosetarget = true;
-							} else {
-								experiment.chosetarget = false;
-								if (experiment.lurepos == 4) {
-									experiment.choselure = true;
-								}
-								if (experiment.distractor2pos == 4) {
-									experiment.chosendistractor = 2
-								} else {
-									experiment.chosendistractor = 1
-								}
+						if (experiment.targetpos == 4) {
+							experiment.chosetarget = true;
+						} else {
+							experiment.chosetarget = false;
+							if (experiment.lurepos == 4) {
+								experiment.choselure = true;
 							}
+							if (experiment.distractor2pos == 4) {
+								experiment.chosendistractor = 2
+							} else {
+								experiment.chosendistractor = 1
+							}
+						}
 
 
-							experiment.chosensize = experiment.objsizes[0]
-							experiment.chosenname = $("#sobject4").attr('src');
-							experiment.chosenobject = "#sobject4"
+						experiment.chosensize = experiment.objsizes[0]
+						experiment.chosenname = $("#sobject4").attr('src');
+						experiment.chosenobject = "#sobject4"
 
-							experiment.afterSelected()
+						experiment.afterSelected()
 					}
 
 				});
@@ -482,27 +499,27 @@ var experiment = {
 
 						experiment.rtsearch = Date.now() - experiment.starttime;
 
-							if (experiment.targetpos == 5) {
-								experiment.chosetarget = true;
+						if (experiment.targetpos == 5) {
+							experiment.chosetarget = true;
+						} else {
+							experiment.chosetarget = false;
+							experiment.chosenname = $( "#sobject5" ).attr('src');
+							if (experiment.lurepos == 5) {
+								experiment.choselure = true;
+							}
+							if (experiment.distractor2pos == 5) {
+								experiment.chosendistractor = 2
 							} else {
-								experiment.chosetarget = false;
-								experiment.chosenname = $( "#sobject5" ).attr('src');
-								if (experiment.lurepos == 5) {
-									experiment.choselure = true;
-								}
-								if (experiment.distractor2pos == 5) {
-									experiment.chosendistractor = 2
-								} else {
-									experiment.chosendistractor = 1
-								}
-
+								experiment.chosendistractor = 1
 							}
 
-							experiment.chosensize = experiment.objsizes[1]
-							experiment.chosenname = $( "#sobject5" ).attr('src');
-							experiment.chosenobject = "#sobject5"
+						}
 
-							experiment.afterSelected()
+						experiment.chosensize = experiment.objsizes[1]
+						experiment.chosenname = $( "#sobject5" ).attr('src');
+						experiment.chosenobject = "#sobject5"
+
+						experiment.afterSelected()
 					}
 
 				});

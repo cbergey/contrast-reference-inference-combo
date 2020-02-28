@@ -19,7 +19,7 @@ data <- read_csv(here("data/turk_data.csv")) %>%
 
 ```{r keep_subjs}
 keep_subjs <- data %>%
-  filter(searchtype == "attncheck", counter == 6) %>%
+  filter(searchtype == "attncheck", counter == 7) %>%
   mutate(attncheckscore = as.numeric(gsub("\n", "", attncheckscore))) %>%
   group_by(subid) %>%
   filter(attncheckscore >= 4)
@@ -27,9 +27,7 @@ keep_subjs <- data %>%
 
 ```{r mean}
 mean_data <- data %>%
-  filter(subid %in% keep_subjs$subid, counter < 6) %>%
-  group_by(searchtype, sizeasked, subid) %>%
-  summarise(percentage = mean(percentage)) %>%
+  filter(subid %in% keep_subjs$subid, counter < 7) %>%
   group_by(chosetarget, searchtype, sizeasked, subid) %>%
   summarise(percentage = mean(percentage), 
             rtsearch = mean(log(rtsearch))) %>%
@@ -42,14 +40,13 @@ mean_data <- data %>%
 
 data %>%
   group_by(searchtype) %>%
-  tidy_boot(chosetarget)
+  tidyboot_mean(chosetarget)
 ```
 
 ```{r unique, fig.width = 10}
 ggplot(mean_data, aes(x = searchtype, color = sizeasked)) +
   geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, y = empirical_stat),
                   position = position_dodge(.5)) + 
-  facet_wrap(chosetarget) +
   scale_color_ptol() + 
   facet_wrap(~chosetarget) +
   ylab("Item chosen") + 
@@ -63,4 +60,9 @@ data %>%
   facet_wrap(~ chosetarget) + 
   geom_point() + 
   geom_smooth(method = "lm")
+
+data %>%
+  filter(subid == 118 | 39 | 199) %>%
+  View()
 ```
+
