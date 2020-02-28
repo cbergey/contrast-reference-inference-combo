@@ -35,6 +35,15 @@ mean_data <- data %>%
   ungroup() %>%
   mutate(sizeasked = factor(sizeasked, labels = c("noun", "adjective noun")))
 
+target_choice <- data %>%
+  filter(subid %in% keep_subjs$subid, counter < 7) %>%
+  group_by(searchtype, sizeasked, subid) %>%
+  summarise(chosetarget = mean(chosetarget), 
+            rtsearch = mean(log(rtsearch))) %>%
+  tidyboot_mean(chosetarget) %>%
+  ungroup() %>%
+  mutate(sizeasked = factor(sizeasked, labels = c("noun", "adjective noun")))
+
 
 
 
@@ -49,8 +58,16 @@ ggplot(mean_data, aes(x = searchtype, color = sizeasked)) +
                   position = position_dodge(.5)) + 
   scale_color_ptol() + 
   facet_wrap(~chosetarget) +
+  ylab("Percentage") + 
+  xlab("")
+
+ggplot(target_choice, aes(x = searchtype, color = sizeasked)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, y = empirical_stat),
+                  position = position_dodge(.5)) + 
+  scale_color_ptol() + 
   ylab("Item chosen") + 
   xlab("")
+
 ```
 
 ```{r}
@@ -61,8 +78,5 @@ data %>%
   geom_point() + 
   geom_smooth(method = "lm")
 
-data %>%
-  filter(subid == 118 | 39 | 199) %>%
-  View()
 ```
 
